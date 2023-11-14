@@ -25,14 +25,14 @@ class VScope<T> extends StatelessWidget {
   final ValueNotifier<T> notifier;
   final WidgetBuilderFunction<T> builder;
 
-  static void Function(String message)? logStateChange;
+  static void Function(String notifier, String state)? logStateChange;
 
   @override
   Widget build(BuildContext context) {
     notifier.addListener(
       () => logStateChange?.call(
-        'New state for ${notifier.runtimeType}\n'
-        '${notifier.value}',
+        notifier.runtimeType.toString(),
+        notifier.value.toString(),
       ),
     );
     return Scope(

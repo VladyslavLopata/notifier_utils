@@ -67,7 +67,7 @@ void main() {
         (tester) async {
           final notifier = ValueNotifier(false);
           var didLog = false;
-          void onLog(String _) => didLog = true;
+          void onLog(String _, String __) => didLog = true;
           VScope.logStateChange = onLog;
 
           await tester.pumpWidget(
