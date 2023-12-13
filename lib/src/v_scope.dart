@@ -14,16 +14,22 @@ class VScope<T> extends StatelessWidget {
     super.key,
     required this.notifier,
     required Widget Function(T value) builder,
+    this.sharedResource = false,
+    this.resourceTag = '',
   }) : builder = ((context, value, child) => builder(value));
 
   const VScope.child({
     super.key,
     required this.notifier,
     required this.builder,
+    this.sharedResource = false,
+    this.resourceTag = '',
   });
 
   final ValueNotifier<T> notifier;
   final WidgetBuilderFunction<T> builder;
+  final bool sharedResource;
+  final String resourceTag;
 
   static void Function(String notifier, String state)? logStateChange;
 
@@ -37,6 +43,8 @@ class VScope<T> extends StatelessWidget {
     );
     return Scope(
       dispose: notifier.dispose,
+      resourceTag: resourceTag,
+      sharedResource: sharedResource,
       child: VBuilder(
         builder: builder,
         valueListenable: notifier,

@@ -63,6 +63,92 @@ void main() {
       );
 
       testWidgets(
+        'Shared scope does not call dispose when one notifier still alive',
+        (tester) async {
+          final notifier = MockNotifier(false);
+
+          await tester.pumpWidget(
+            VScope(
+              sharedResource: true,
+              notifier: notifier,
+              builder: (_) => const SizedBox(),
+            ),
+          );
+          await tester.pumpAndSettle();
+          await tester.pumpWidget(
+            VScope(
+              sharedResource: true,
+              notifier: notifier,
+              builder: (_) => const SizedBox(),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(notifier.isDisposed, false);
+        },
+      );
+
+      testWidgets(
+        'Shared scope calls dispose when last notifier is out of scope',
+        (tester) async {
+          final notifier = MockNotifier(false);
+
+          await tester.pumpWidget(
+            VScope(
+              sharedResource: true,
+              notifier: notifier,
+              builder: (_) => const SizedBox(),
+            ),
+          );
+          await tester.pumpAndSettle();
+          await tester.pumpWidget(const SizedBox());
+          await tester.pumpAndSettle();
+          expect(notifier.isDisposed, true);
+        },
+      );
+
+      testWidgets(
+        'Maintains two scopes properly',
+        (tester) async {
+          final notifier1 = MockNotifier(false);
+          final notifier2 = MockNotifier(false);
+
+          const tag1 = 'n1';
+          const tag2 = 'n2';
+
+          await tester.pumpWidget(
+            Column(
+              children: [
+                VScope(
+                  sharedResource: true,
+                  notifier: notifier1,
+                  resourceTag: tag1,
+                  builder: (_) => const SizedBox(),
+                ),
+                VScope(
+                  sharedResource: true,
+                  notifier: notifier2,
+                  resourceTag: tag2,
+                  builder: (_) => const SizedBox(),
+                ),
+              ],
+            ),
+          );
+          await tester.pumpAndSettle();
+          await tester.pumpWidget(
+            VScope(
+              sharedResource: true,
+              notifier: notifier1,
+              resourceTag: tag1,
+              builder: (_) => const SizedBox(),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(notifier1.isDisposed, false);
+          expect(notifier2.isDisposed, true);
+        },
+      );
+
+      testWidgets(
         'Logs state changes',
         (tester) async {
           final notifier = ValueNotifier(false);
